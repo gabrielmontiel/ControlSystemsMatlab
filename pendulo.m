@@ -124,3 +124,21 @@ syspid1=feedback(PID1*sys1,H);
 poly23=poly2sym(d23,s);
 
 %% asignar polos PI
+
+
+%% First method Ziegler-Nichols
+syms t x s
+[num,den]=tfdata(sys1,'v');
+sys1_sym=poly2sym(num,s)/poly2sym(den,s);
+t0 = ilaplace((1/s)*sys1_sym);
+t2 = diff(t0,2);
+x_inflection = solve(t2 == 0);
+
+t1=diff(t0,1);
+m = subs(t1,t,x_inflection);
+y_inflection = subs(t0,t,x_inflection);
+y = m*(x-x_inflection)+ y_inflection;
+
+L = solve(y == 0);
+
+T=max(solve(t1 == 0.001));
